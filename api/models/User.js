@@ -6,6 +6,10 @@ const userSchema = new mangoose.Schema({
         type: mangoose.SchemaTypes.String,
         required: [true, "Email is required"],
     },
+    password: {
+        type: mangoose.SchemaTypes.String,
+        required: [true, "Password is required"],
+    },
     phoneNumber: {
         number: {
             type: mangoose.SchemaTypes.String, 
