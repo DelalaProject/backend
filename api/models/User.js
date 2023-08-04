@@ -5,6 +5,11 @@ const userSchema = new mangoose.Schema({
     email: {
         type: mangoose.SchemaTypes.String,
         required: [true, "Email is required"],
+        validator: [(val) => val != undefined && val.toString().includes("@") && val.toString().includes("."), "Email is invalid"],
+        validate:  [{
+            validator: (val) => val != undefined && val.toString().includes("@") && val.toString().includes("."),
+            message: "Email is invalid",
+        }],
     },
     password: {
         type: mangoose.SchemaTypes.String,
@@ -19,7 +24,6 @@ const userSchema = new mangoose.Schema({
             type: mangoose.SchemaTypes.Number, 
             required: [true, "Phone number is required"]
         },
-        required: true,
     },
     firstName: {
         type: mangoose.SchemaTypes.String,
@@ -41,6 +45,7 @@ const userSchema = new mangoose.Schema({
     addresses :{
         type: [mongoose.SchemaTypes.String],
         required: [true, "at least one ddress is required"],
+        validate: [(val) => val.length > 0, "at least one address is required"],
     },
 });
 
