@@ -1,6 +1,6 @@
 const router = require('express').Router();
-const {signUpHandler} = require('../controllers/authController.js');
-const {validateSignUpInfo} = require('../middlewares/authMiddlewares.js');
+const {signUpHandler, signInHandler} = require('../controllers/authController.js');
+const {validateSignUpInfo, validateSignInInfo} = require('../middlewares/authMiddlewares.js');
 
 
 router.post(
@@ -8,6 +8,13 @@ router.post(
     //middlewares
     [validateSignUpInfo],
     signUpHandler,
+    
+);
+router.get(
+    "/signin",
+    //middlewares
+    [validateSignInInfo],
+    signInHandler,
     
 );
 

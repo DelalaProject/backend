@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 
+
 const listingSchema = new mongoose.Schema({
     user: {
         type: mongoose.SchemaTypes.ObjectId,
@@ -44,33 +45,10 @@ const listingSchema = new mongoose.Schema({
     subCategory: {
         type: mongoose.SchemaTypes.String,
         default: "other",
-        enum: {
-            values: () => {
-                switch (category) {
-                    case "tops":
-                        return ["t-shirts", "shirts", "sweaters", "hoodies", "jackets", "other"]; 
-                    case "lower boddy":
-                        return ["trousers","jeans", "joggers", "skirts", "shorts", "other"];
-                    case "underwear":
-                        return ["boxers", "panties", "bras", "other"];
-                    case "hats":
-                        return ["caps", "hats", "beanies" ,"other"];
-                    case "accessories":
-                        return ["gloves", "belts", "sunglasses", "watches", "jewelry", "ries", "hair clips", "other"];
-                    case "full body":
-                        return ["outfits", "suits", "dresses", "coats", "sportwear", "other", "other"];
-                    case "shoes":
-                        return ["sneakers", "boots", "sandals", "heels", "loafers", "flats", "socks", "other"];
-                    case "infant wear":
-                        return [];
-                    case "other":
-                        return [];
-                    default:
-                        break;
-                }
-            },
-            message: "Subcategory must be valid",
-        }
+        validate : {
+            validator : subCategoryCalculator,
+            message   : 'Subcategory is not valid for this category'
+        },
     },
     condition: {
         type: mongoose.SchemaTypes.String,
@@ -124,9 +102,29 @@ const listingSchema = new mongoose.Schema({
             ref: "CustomSpec",
         }],
         default: [],
+    },
+    location: {
+        type: mongoose.SchemaTypes.String,
+        required: [true, "Location is required"],
     }
+
 });
+
+function subCategoryCalculator() {
+    const subCategories = 
+    this.category == "tops" ? ["t-shirts", "shirts", "sweaters", "hoodies", "jackets", "other"] 
+     :  this.category == "lower body" ? ["trousers","jeans", "joggers", "skirts", "shorts", "other"]
+     : this.category == "underwear" ? ["boxers", "panties", "bras", "other"]
+    : this.category == "hats" ? ["caps", "hats", "beanies" ,"other"]
+    : this.category == "accessories" ? ["gloves", "belts", "sunglasses", "watches", "jewelry", "ries", "hair clips", "other"]
+    : this.category == "full body" ? ["outfits", "suits", "dresses", "coats", "sportwear", "other"]
+    : this.category == "shoes" ? ["sneakers", "boots", "sandals", "heels", "loafers", "flats", "socks", "other"]
+    : this.category == "infant wear" ? ["other"]
+    : this.category == "other" ? ["other"] : [];
+    
+    return false;
+}
 
 const Listing = mongoose.model("Listing", listingSchema);
 
-modules.exports = Listing;
+module.exports = Listing;

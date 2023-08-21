@@ -1,6 +1,7 @@
 
 const {emailValidator, passwordValidator} = require("../tools/inputValidators.js");
-
+const jwt = require('jsonwebtoken');
+const config = require('../../config/auth_config.js');
 
 const validateSignUpInfo = (req, res, next) => {
     const body = req.body;
@@ -8,11 +9,13 @@ const validateSignUpInfo = (req, res, next) => {
     
     try{ 
         //check if email is valid
-        emailValidator(body.email, res);
+        emailValidator(body.email);
 
         //check if password is valid
-        passwordValidator(body.password, res);
+        passwordValidator(body.password);
     } catch (err) {
+        console.log(err);
+        res.status(400).json({ message: err.message });
         return;
     }
 
@@ -39,5 +42,47 @@ const validateSignUpInfo = (req, res, next) => {
 
     next();
 }
+const validateSignInInfo = (req, res, next) => {
 
-module.exports = {validateSignUpInfo}
+    
+    try{ 
+        //check if email is valid
+        emailValidator(req.headers.email);
+
+    } catch (err) {
+        console.log(err);
+        res.status(400).json({ message: err.message });
+        return;
+    }
+
+    
+
+
+
+    next();
+}
+
+
+const verifyToken = async (req, res, next) => {
+    const token = req.headers["x-access-token"];
+
+    try {
+        if (!token) {
+            return res.status(403).json({ message: "No token provided" });
+        }
+
+        jwt.verify(token, config.jwtSecretKey, (err, decoded) => {
+            if (err) {
+                return res.status(401).json({ message: "Unauthorized" });
+            }
+            req.userId = decoded.id;
+            next();
+        });
+    } catch (err) {
+        console.log(err);
+        res.status(500).json({ error: err.message });
+        return;
+    }
+}
+
+module.exports = {validateSignUpInfo, verifyToken, validateSignInInfo}

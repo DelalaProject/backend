@@ -5,6 +5,7 @@ const connectDB = require("./config/db_config.js");
 const jsonBodyParser = require('body-parser').json();
 
 const authRoute = require("./api/routes/authRoute.js");
+const listingsRoute = require("./api/routes/listingsRoute.js");
 
 
 
@@ -19,9 +20,12 @@ connectDB();
 
 //routes
 app.use('/auth', authRoute);
+app.use('/listings', listingsRoute);
 
 //main route
 app.use("/", (req, res) =>{
+    const ipAdress = req.socket.remoteAddress;
+    console.log("IT'S UP at : " + ipAdress );
     res.send("Hello World!");
 });
 
