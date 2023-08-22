@@ -7,7 +7,7 @@ const jwt = require('jsonwebtoken');
 
 
 const signUp = async (req, res) => {
-    try {
+    
         const user = new User({
             email: req.body.email,
             password: (await bcrypt.hash(req.body.password, config.saltRounds)),
@@ -26,33 +26,31 @@ const signUp = async (req, res) => {
 
         return user;
 
-    } catch (err) {
-        throw new Error(err.message);
-    }
 }
 
 const signIn = async (req, res) => {
-    try {
+    
         const {email, password} = req.headers;
-        const user =await User.findOne({email: email});
+        let user;
+        await User.findOne({email: email})
+        .then((result) => {
+            user = result;
+        });
+        
         if (!user) {
-        return res
-          .status(400)
-          .json({ msg: "User with this email does not exist!" });
+            throw new Error("User with this email does not exist!");
         }
+        
 
         const isMatch = await bcrypt.compare(password, user.password);
         if (!isMatch) {
-            return res.status(400).json({ msg: "Invalid credentials!" });
+            throw new Error("Invalid credentials!");
         }
 
         const token  = jwt.sign({id: user._id}, config.jwtSecretKey);
 
         return token;
 
-    } catch (err) {
-        throw new Error(err.message);
-    }
 }
 
 

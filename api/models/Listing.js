@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const {subCategoryValidator} = require('../tools/inputValidators.js');
 
 
 const listingSchema = new mongoose.Schema({
@@ -10,6 +11,12 @@ const listingSchema = new mongoose.Schema({
     title: {
         type: mongoose.SchemaTypes.String,
         required: [true, "Title is required"],
+        validate : {
+            validator : function(v) {
+                return v.toString();
+            },
+            message: "Title must not be empty"
+        }
     },
     description: {
         type: mongoose.SchemaTypes.String,
@@ -46,7 +53,10 @@ const listingSchema = new mongoose.Schema({
         type: mongoose.SchemaTypes.String,
         default: "other",
         validate : {
-            validator : subCategoryCalculator,
+            validator : function(v) {
+                return subCategoryValidator( v, this.category);
+
+            },
             message   : 'Subcategory is not valid for this category'
         },
     },
@@ -87,6 +97,7 @@ const listingSchema = new mongoose.Schema({
     },
     price: {
         type: mongoose.SchemaTypes.Decimal128,
+        min: 0,
     },  
     priceType: {
         type: mongoose.SchemaTypes.String,
@@ -109,21 +120,6 @@ const listingSchema = new mongoose.Schema({
     }
 
 });
-
-function subCategoryCalculator() {
-    const subCategories = 
-    this.category == "tops" ? ["t-shirts", "shirts", "sweaters", "hoodies", "jackets", "other"] 
-     :  this.category == "lower body" ? ["trousers","jeans", "joggers", "skirts", "shorts", "other"]
-     : this.category == "underwear" ? ["boxers", "panties", "bras", "other"]
-    : this.category == "hats" ? ["caps", "hats", "beanies" ,"other"]
-    : this.category == "accessories" ? ["gloves", "belts", "sunglasses", "watches", "jewelry", "ries", "hair clips", "other"]
-    : this.category == "full body" ? ["outfits", "suits", "dresses", "coats", "sportwear", "other"]
-    : this.category == "shoes" ? ["sneakers", "boots", "sandals", "heels", "loafers", "flats", "socks", "other"]
-    : this.category == "infant wear" ? ["other"]
-    : this.category == "other" ? ["other"] : [];
-    
-    return false;
-}
 
 const Listing = mongoose.model("Listing", listingSchema);
 

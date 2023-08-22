@@ -3,7 +3,7 @@ const Listing = require('../models/listing');
 const mongoose = require('mongoose');
 
 const createListing = async (req, res) => {
-    try {
+    
         const listing = new Listing({
             user: req.userId,
             title: req.body.title,
@@ -27,16 +27,16 @@ const createListing = async (req, res) => {
 
         return listing;
 
-    } catch (err) {
-        throw new Error(err.message);
-    }
 }
 
 const getUserPublicListings = async (req, res) => {
-    try {
+
         
         let listings = [];
-        await Listing.find({user:req.headers["userid"]}).then((results) => {
+        await Listing.find({
+            user:req.query.userId,
+            anonymous:false
+        }).then((results) => {
             listings = results;
         }).catch((err) => {
             throw new Error(err.message);
@@ -44,9 +44,69 @@ const getUserPublicListings = async (req, res) => {
 
         return listings;
 
-    } catch (err) {
-        throw new Error(err.message);
-    }
 }
 
-module.exports = {createListing, getUserPublicListings}
+
+const getUserListings = async (req, res) => {
+    
+        
+        let listings = [];
+        await Listing.find({
+            user:req.userId,
+        }).then((results) => {
+            listings = results;
+        }).catch((err) => {
+            throw new Error(err.message);
+        });;
+
+        return listings;
+
+}
+
+const deleteListing = async (req, res) => {
+        
+    const listing = await Listing.findOneAndDelete({
+        _id: req.query.listingId,
+        user: req.userId,
+    }).then((result) => {
+        if (!result) {
+            throw new Error("You don't have permission to delete this listing");
+        }
+    });
+    return listing;
+}
+
+
+const updateListing = async (req, res) => {
+    let listing;
+    await Listing.findOneAndUpdate({
+        _id: req.query.listingId,
+        user: req.userId,
+    }, {
+        title : req.body.title ? req.body.title : this.title,
+        description : req.body.description ? req.body.description : this.description,
+        type : req.body.type ? req.body.type : this.type,
+        dateModified : Date.now(),
+        category : req.body.category ? req.body.category : this.category,
+        subCategory : req.body.subCategory ? req.body.subCategory : this.subCategory,
+        condition : req.body.condition ? req.body.condition : this.condition,
+        wholesaleOrRetail : req.body.wholesaleOrRetail ? req.body.wholesaleOrRetail : this.wholesaleOrRetail,
+        inStock : req.body.inStock ? req.body.inStock : this.inStock,
+        anonymous : req.body.anonymous ? req.body.anonymous : this.anonymous,
+        offerOrRequest : req.body.offerOrRequest ? req.body.offerOrRequest : this.offerOrRequest,
+        price : req.body.price ? req.body.price : this.price,
+        priceType : req.body.priceType ? req.body.priceType : this.priceType,
+        customSpecs : req.body.customSpecs ? req.body.customSpecs : this.customSpecs,
+    }, {
+        new: true,
+    }).then((result) => {
+        
+        if (!result){
+            throw new Error("You don't have permission to delete this listing");
+        }
+        listing = result;
+    });
+    return listing;
+}
+
+module.exports = {createListing, getUserPublicListings, getUserListings, deleteListing, updateListing}

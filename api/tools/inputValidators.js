@@ -55,4 +55,20 @@ const phoneNumberValidator = (phoneNumber) => {
     
 }
 
-module.exports = {emailValidator, passwordValidator}
+
+const subCategoryValidator = (subCategory, category) => {
+    const subCategories = 
+    category == "tops" ? ["t-shirts", "shirts", "sweaters", "hoodies", "jackets", "other"] 
+     :  category == "lower body" ? ["trousers","jeans", "joggers", "skirts", "shorts", "other"]
+     : category == "underwear" ? ["boxers", "panties", "bras", "other"]
+    : category == "hats" ? ["caps", "hats", "beanies" ,"other"]
+    : category == "accessories" ? ["gloves", "belts", "sunglasses", "watches", "jewelry", "ries", "hair clips", "other"]
+    : category == "full body" ? ["outfits", "suits", "dresses", "coats", "sportwear", "other"]
+    : category == "shoes" ? ["sneakers", "boots", "sandals", "heels", "loafers", "flats", "socks", "other"]
+    : category == "infant wear" ? ["other"]
+    : category == "other" ? ["other"] : [];
+    
+    return subCategories.includes(subCategory);
+}
+
+module.exports = {emailValidator, passwordValidator, subCategoryValidator}

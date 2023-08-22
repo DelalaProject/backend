@@ -6,7 +6,7 @@ const checkUserExistance = async (req, res, next) => {
 
     try {
 
-        await User.findById(req.headers["userid"]).then((user) => {
+        await User.findById(req.query.userId).then((user) => {
             
             if (user) next();
             else return res.status(400).json({ msg: "user not found" });

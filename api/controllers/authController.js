@@ -16,7 +16,7 @@ const signUpHandler = async (req, res) => {
 const signInHandler = async (req, res) => {
     try {
         const token = await signIn(req, res);
-        res.status(200).json({ message: 'User signed in successfully', token, ...token._doc});
+        res.status(200).json({ message: 'User signed in successfully', token});
     } catch (err) {
         console.log(err);
         res.status(400).json({ message: err.message });
