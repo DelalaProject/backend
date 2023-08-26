@@ -1,6 +1,6 @@
-const Listing = require('../models/listing');
+const Listing = require('../models/Listing');
 
-const {createListing, getUserPublicListings, getUserListings, deleteListing, updateListing} = require('../services/listingsService.js');
+const {createListing, getUserPublicListings, getUserListings, deleteListing, updateListing, seacrhListings} = require('../services/listingsService.js');
 
 const createListingHandler = async (req, res) => {
     try {
@@ -48,6 +48,16 @@ const updateListingHandler = async (req, res) => {
     }
 }
 
+const seacrhListingsHandler = async (req, res) => {
+    try {
+        const listings = await seacrhListings(req, res);
+        res.status(200).json({ listings });
+    } catch (err) {
+        console.log(err);
+        res.status(400).json({ message: err.message });
+    }
+}
 
 
-module.exports = {createListingHandler, getUserPublicListingsHandler, getUserListingsHandler, deleteListingHandler, updateListingHandler}
+
+module.exports = {createListingHandler, getUserPublicListingsHandler, getUserListingsHandler, deleteListingHandler, updateListingHandler, seacrhListingsHandler}

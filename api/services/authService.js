@@ -1,4 +1,5 @@
 const User = require('../models/User.js');
+const Location = require("../models/Location");
 
 
 const bcrypt = require('bcrypt');
@@ -7,6 +8,7 @@ const jwt = require('jsonwebtoken');
 
 
 const signUp = async (req, res) => {
+
     
         const user = new User({
             email: req.body.email,
@@ -17,10 +19,29 @@ const signUp = async (req, res) => {
             },
             firstName: req.body.firstName,
             lastName: req.body.lastName,
-            addresses: req.body.addresses,
             rating: req.body.rating,
         });
 
+        await user.save();
+
+        
+        const locations = [];
+        for (i = 0; i < req.body.locations.length; i++) {
+
+            const location = new Location({
+                user: user._id,
+                title: req.body.locations[i].title,
+                address: req.body.locations[i].address,
+                coordinates: {
+                    coordinates : req.body.locations[i].coordinates,
+                },
+            });
+            await location.save();
+            locations.push(location._id);
+        }
+
+
+        user.locations = locations;
         await user.save();
 
 

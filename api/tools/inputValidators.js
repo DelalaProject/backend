@@ -57,6 +57,7 @@ const phoneNumberValidator = (phoneNumber) => {
 
 
 const subCategoryValidator = (subCategory, category) => {
+    if (!subCategory) return true;
     const subCategories = 
     category == "tops" ? ["t-shirts", "shirts", "sweaters", "hoodies", "jackets", "other"] 
      :  category == "lower body" ? ["trousers","jeans", "joggers", "skirts", "shorts", "other"]

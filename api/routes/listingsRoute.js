@@ -1,10 +1,9 @@
 const router = require('express').Router();
 
-const Listing = require('../models/listing');
 const {verifyToken} = require('../middlewares/authMiddlewares.js');
-const {createListingHandler, getUserPublicListingsHandler, getUserListingsHandler, deleteListingHandler, updateListingHandler} = require('../controllers/listingsController.js');
 const {checkUserExistance} = require('../middlewares/userMiddlewares.js');
-const {checkListingExistance, valideListingValues} = require('../middlewares/listingsMiddlewares.js');
+const {checkListingExistance, valideListingValues, searchQueryBuilder} = require('../middlewares/listingsMiddlewares.js');
+const {createListingHandler, getUserPublicListingsHandler, getUserListingsHandler, deleteListingHandler, updateListingHandler, seacrhListingsHandler} = require('../controllers/listingsController.js');
 
 
 router.post(
@@ -38,6 +37,12 @@ router.put(
     verifyToken,
     [checkListingExistance, valideListingValues],
     updateListingHandler
+);
+
+router.get(
+    "/searchAsGuest",
+    searchQueryBuilder,
+    seacrhListingsHandler
 );
 
 

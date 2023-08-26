@@ -42,10 +42,11 @@ const userSchema = new mangoose.Schema({
         max: 5,
     
     },
-    addresses :{
-        type: [mongoose.SchemaTypes.String],
-        required: [true, "at least one ddress is required"],
-        validate: [(val) => val.length > 0, "at least one address is required"],
+    locations :{
+        type: [{
+            type: mangoose.SchemaTypes.ObjectId,
+            ref: "Location",
+        }],
     },
 });
 

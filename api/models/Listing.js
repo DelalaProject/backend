@@ -51,7 +51,6 @@ const listingSchema = new mongoose.Schema({
     },
     subCategory: {
         type: mongoose.SchemaTypes.String,
-        default: "other",
         validate : {
             validator : function(v) {
                 return subCategoryValidator( v, this.category);
@@ -97,7 +96,11 @@ const listingSchema = new mongoose.Schema({
     },
     price: {
         type: mongoose.SchemaTypes.Decimal128,
-        min: 0,
+        min: 1,
+    },
+    currency: {
+        type: mongoose.SchemaTypes.String,
+        default: "DZD",
     },  
     priceType: {
         type: mongoose.SchemaTypes.String,
@@ -109,17 +112,31 @@ const listingSchema = new mongoose.Schema({
     },
     customSpecs: {
         type: [{
-            type: mongoose.SchemaTypes.ObjectId,
-            ref: "CustomSpec",
+            name: {
+                type: mongoose.SchemaTypes.String,
+                required: [true, "You can't create a custom spec without a name"],
+            },
+            listing: {
+                type: mongoose.SchemaTypes.ObjectId,
+                ref: "Listing",
+                required: [true, "You can't create a custom spec without a listing"],
+            },
+            value: {
+                type: mongoose.SchemaTypes.String,
+                required: [true, "You can't create a custom spec without a value"],
+            },
         }],
         default: [],
     },
     location: {
-        type: mongoose.SchemaTypes.String,
+        type: mongoose.SchemaTypes.ObjectId,
+        ref: "Location",
         required: [true, "Location is required"],
     }
 
 });
+
+listingSchema.index({title: 'text', description: 'text'});
 
 const Listing = mongoose.model("Listing", listingSchema);
 

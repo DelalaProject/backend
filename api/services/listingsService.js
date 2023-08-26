@@ -1,5 +1,5 @@
 const User = require('../models/User');
-const Listing = require('../models/listing');
+const Listing = require('../models/Listing');
 const mongoose = require('mongoose');
 
 const createListing = async (req, res) => {
@@ -97,6 +97,7 @@ const updateListing = async (req, res) => {
         price : req.body.price ? req.body.price : this.price,
         priceType : req.body.priceType ? req.body.priceType : this.priceType,
         customSpecs : req.body.customSpecs ? req.body.customSpecs : this.customSpecs,
+        location : req.body.location ? req.body.location : this.location,
     }, {
         new: true,
     }).then((result) => {
@@ -109,4 +110,17 @@ const updateListing = async (req, res) => {
     return listing;
 }
 
-module.exports = {createListing, getUserPublicListings, getUserListings, deleteListing, updateListing}
+
+const seacrhListings = async (req, res) => {
+    let listings;
+
+    await Listing.find(req.searchQuery).then((results) => {
+        listings = results;
+    });
+
+
+    return listings;
+    
+}
+
+module.exports = {createListing, getUserPublicListings, getUserListings, deleteListing, updateListing, seacrhListings}

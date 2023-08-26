@@ -1,4 +1,4 @@
-const Listing = require('../models/listing');
+const Listing = require('../models/Listing.js');
 const {subCategoryValidator} = require('../tools/inputValidators.js');
 
 
@@ -86,4 +86,65 @@ const valideListingValues = async (req, res, next) => {
     }
 }
 
-module.exports = {checkListingExistance,valideListingValues}
+
+const searchQueryBuilder = (req, res, next) => {
+    let query = {
+        $text: {$search: req.query.search},
+    };
+
+    if (req.query.category) {
+        query.category = req.query.category;
+    }
+
+    
+    if (req.query.category && req.query.subCategory) {
+        query.subCategory = req.query.subCategory;
+    }
+
+    if (req.query.date) {
+        query.date = {$gte: new Date(req.query.date)};
+    }
+
+    if (req.query.type) {
+        query.type = req.query.type;
+    }
+
+    if (req.query.condition) {
+        query.condition = req.query.condition;
+    }
+
+    if (req.query.wholesaleOrRetail) {
+        query.wholesaleOrRetail = req.query.wholesaleOrRetail;
+    }
+
+    if (req.query.inStock) {
+        query.inStock = req.query.inStock;
+    }
+
+    if (req.query.anonymous) {
+        query.anonymous = req.query.anonymous;
+    }
+
+    if (req.query.offerOrRequest) {
+        query.offerOrRequest = req.query.offerOrRequest;
+    }
+
+    if (req.query.minPrice && req.query.maxPrice) {
+        query.price = { $gte: parseFloat(req.query.minPrice), $lte:req.query. parseFloat(req.query.maxPrice) };
+    } else if (req.query.minPrice) {
+        query.price = { $gte: parseFloat(req.query.minPrice) };
+    } else if (req.query.maxPrice) {
+        query.price = { $lte: parseFloat(req.query.maxPrice) };
+    }
+
+    if (req.query.priceType) {
+        query.priceType = req.query.priceType;
+    }
+
+    req.searchQuery = query;
+    
+    next();
+
+}
+
+module.exports = {checkListingExistance,valideListingValues, searchQueryBuilder}
