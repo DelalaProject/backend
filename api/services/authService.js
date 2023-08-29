@@ -32,9 +32,7 @@ const signUp = async (req, res) => {
                 user: user._id,
                 title: req.body.locations[i].title,
                 address: req.body.locations[i].address,
-                coordinates: {
-                    coordinates : req.body.locations[i].coordinates,
-                },
+                coordinates: req.body.locations[i].coordinates,
             });
             await location.save();
             locations.push(location._id);

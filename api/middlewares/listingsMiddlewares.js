@@ -71,6 +71,12 @@ const valideListingValues = async (req, res, next) => {
             return res.status(400).json({ message: "invalid listing price" });
         }
 
+        if (!req.body.location) {
+            return res.status(400).json({ message: "location is required" });
+        }
+
+
+
         
 
         
@@ -88,9 +94,11 @@ const valideListingValues = async (req, res, next) => {
 
 
 const searchQueryBuilder = (req, res, next) => {
-    let query = {
-        $text: {$search: req.query.search},
-    };
+    let query = {};
+
+    if (req.query.search) {
+        query.$text = { $search: req.query.search };
+    }
 
     if (req.query.category) {
         query.category = req.query.category;
@@ -129,19 +137,41 @@ const searchQueryBuilder = (req, res, next) => {
         query.offerOrRequest = req.query.offerOrRequest;
     }
 
-    if (req.query.minPrice && req.query.maxPrice) {
-        query.price = { $gte: parseFloat(req.query.minPrice), $lte:req.query. parseFloat(req.query.maxPrice) };
-    } else if (req.query.minPrice) {
-        query.price = { $gte: parseFloat(req.query.minPrice) };
-    } else if (req.query.maxPrice) {
-        query.price = { $lte: parseFloat(req.query.maxPrice) };
-    }
+    if (req.query.minPrice) query.price = { $gte: parseFloat(req.query.minPrice) };
+    if (req.query.maxPrice) query.price = { ...query.price, $lte: parseFloat(req.query.maxPrice) };
 
     if (req.query.priceType) {
         query.priceType = req.query.priceType;
     }
 
-    req.searchQuery = query;
+    if (req.query.lat && req.query.lng && req.query.distance) {
+        const nearAggregation = {
+          $geoNear: {
+            near: {
+              type: 'Point',
+              coordinates: [parseFloat(req.query.lat), parseFloat(req.query.lng)],
+            },
+            distanceField: 'distance',
+            maxDistance: parseFloat(req.query.distance)*1000,
+            spherical: true,
+          },
+        };
+        
+
+        const aggregatePipeline = [
+            nearAggregation,
+          {
+            $match: query,
+          },
+          
+        ];
+
+        req.searchQuery = aggregatePipeline;
+        
+    } else {
+        req.searchQuery = query;
+    }
+
     
     next();
 

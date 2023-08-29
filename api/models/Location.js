@@ -18,21 +18,16 @@ const locationSchema = new mongoose.Schema({
         type: mongoose.SchemaTypes.String,
         required: [true, "Address is required"],
     },
-    coordinates: {
-        type: {
-            type: mongoose.SchemaTypes.String,
-            enum: ['Point'],
-            default: 'Point',
-        },
-        coordinates: {
-            type: [mongoose.SchemaTypes.Number],
-            required: true
-        }
-    },
+    coordinates:  {
+        type: [mongoose.SchemaTypes.Number],
+        index: '2dsphere',
+        required: true
+    }
+    
 
 });
 
-locationSchema.index({ coordinates: '3dsphere' });
+// locationSchema.index({ coordinates: '2dsphere' });
 
 const Location = mongoose.model("Location", locationSchema);
 

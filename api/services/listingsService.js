@@ -1,9 +1,11 @@
-const User = require('../models/User');
+
 const Listing = require('../models/Listing');
-const mongoose = require('mongoose');
+const Location = require('../models/Location');
+const {getDistanceFromLatLonInKm} = require('../tools/calculations.js');
+
 
 const createListing = async (req, res) => {
-    
+        
         const listing = new Listing({
             user: req.userId,
             title: req.body.title,
@@ -20,6 +22,17 @@ const createListing = async (req, res) => {
             priceType: req.body.priceType,
             customSpecs: req.body.customSpecs,
             location: req.body.location,
+        });
+
+        await Location.findById(req.body.location).then((location) => {
+            if (!location) {
+                throw new Error("Location not found");
+            } else if (location.user != req.userId) {
+                throw new Error("You don't have permission to use this location");
+            } else {
+                listing.coordinates = location.coordinates;
+            }
+            
         });
 
 
@@ -112,12 +125,47 @@ const updateListing = async (req, res) => {
 
 
 const seacrhListings = async (req, res) => {
-    let listings;
+
+    
+    let listings ;
+
+    if (req.query.lat && req.query.lng && req.query.distance) {
+        await Listing.aggregate(req.searchQuery).then((results) => {
+            listings = results;
+        });
+        
+    } else {
+        await Listing.find(req.searchQuery).then((results) => {
+            listings = results;
+        });
+    }
+
+    return listings;
+
 
     await Listing.find(req.searchQuery).then((results) => {
+        
         listings = results;
     });
 
+    let distance, searchLatitude, searchLongitude;
+    for (let i = 0; i < listings.length; i++) {
+        await Location.findById(listings[i].location).then((location) => {
+            distance = getDistanceFromLatLonInKm(req.query.lat, req.query.lng, location.coordinates[0], location.coordinates[1]);
+            if (distance > req.query.distance) {
+                listings.slice(i, 1);
+            } else {
+                if (listings.anonymous) delete location.user;
+                location.distance = distance;
+                console.log(location);
+                listings[i].location = location;
+            }
+
+        });
+    }
+
+
+    
 
     return listings;
     

@@ -132,11 +132,14 @@ const listingSchema = new mongoose.Schema({
         type: mongoose.SchemaTypes.ObjectId,
         ref: "Location",
         required: [true, "Location is required"],
+    },
+    coordinates: {
+        type: [mongoose.SchemaTypes.Number],
     }
 
 });
 
-listingSchema.index({title: 'text', description: 'text'});
+listingSchema.index({title: 'text', description: 'text', coordinates: '2dsphere'});
 
 const Listing = mongoose.model("Listing", listingSchema);
 
