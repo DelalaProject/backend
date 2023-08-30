@@ -144,33 +144,9 @@ const searchQueryBuilder = (req, res, next) => {
         query.priceType = req.query.priceType;
     }
 
-    if (req.query.lat && req.query.lng && req.query.distance) {
-        const nearAggregation = {
-          $geoNear: {
-            near: {
-              type: 'Point',
-              coordinates: [parseFloat(req.query.lat), parseFloat(req.query.lng)],
-            },
-            distanceField: 'distance',
-            maxDistance: parseFloat(req.query.distance)*1000,
-            spherical: true,
-          },
-        };
-        
-
-        const aggregatePipeline = [
-            nearAggregation,
-          {
-            $match: query,
-          },
-          
-        ];
-
-        req.searchQuery = aggregatePipeline;
-        
-    } else {
-        req.searchQuery = query;
-    }
+    
+    req.searchQuery = query;
+    
 
     
     next();

@@ -1,5 +1,6 @@
 const User = require('../models/User.js');
 const Location = require("../models/Location");
+const PhoneNumber = require("../models/PhoneNumber");
 
 
 const bcrypt = require('bcrypt');
@@ -13,10 +14,6 @@ const signUp = async (req, res) => {
         const user = new User({
             email: req.body.email,
             password: (await bcrypt.hash(req.body.password, config.saltRounds)),
-            phoneNumber: {
-                number: req.body.phoneNumber.number,
-                code: req.body.phoneNumber.code,
-            },
             firstName: req.body.firstName,
             lastName: req.body.lastName,
             rating: req.body.rating,
@@ -25,7 +22,6 @@ const signUp = async (req, res) => {
         await user.save();
 
         
-        const locations = [];
         for (i = 0; i < req.body.locations.length; i++) {
 
             const location = new Location({
@@ -35,12 +31,16 @@ const signUp = async (req, res) => {
                 coordinates: req.body.locations[i].coordinates,
             });
             await location.save();
-            locations.push(location._id);
+            
         }
 
+        const phoneNumber = new PhoneNumber({
+            user: user._id,
+            number: req.body.phoneNumber.number,
+            code: req.body.phoneNumber.code,
+        });
 
-        user.locations = locations;
-        await user.save();
+        await phoneNumber.save();
 
 
         return user;

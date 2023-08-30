@@ -15,16 +15,6 @@ const userSchema = new mangoose.Schema({
         type: mangoose.SchemaTypes.String,
         required: [true, "Password is required"],
     },
-    phoneNumber: {
-        number: {
-            type: mangoose.SchemaTypes.String, 
-            required: [true, "Phone number is required"],
-        },
-        code: {
-            type: mangoose.SchemaTypes.Number, 
-            required: [true, "Phone number is required"]
-        },
-    },
     firstName: {
         type: mangoose.SchemaTypes.String,
         required: [true, "First name is required"],
@@ -42,13 +32,10 @@ const userSchema = new mangoose.Schema({
         max: 5,
     
     },
-    locations :{
-        type: [{
-            type: mangoose.SchemaTypes.ObjectId,
-            ref: "Location",
-        }],
-    },
 });
+
+
+userSchema.index({firstName: 'text', lastName: 'text'});
 
 
 const User = mongoose.model("User", userSchema);

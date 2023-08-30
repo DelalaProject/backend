@@ -126,19 +126,61 @@ const updateListing = async (req, res) => {
 
 const seacrhListings = async (req, res) => {
 
-    
+    const PAGE_SIZE = 10;
     let listings ;
 
     if (req.query.lat && req.query.lng && req.query.distance) {
-        await Listing.aggregate(req.searchQuery).then((results) => {
+        const nearAggregation = {
+            $geoNear: {
+              near: {
+                type: 'Point',
+                coordinates: [parseFloat(req.query.lat), parseFloat(req.query.lng)],
+              },
+              distanceField: 'distance',
+              maxDistance: parseFloat(req.query.distance)*1000,
+              spherical: true,
+            },
+          };
+          
+          const sortOptions = {
+            $sort: {[req.query.sortBy] : parseFloat(req.query.sortOrder)}
+          };
+  
+          const aggregatePipeline = [
+              nearAggregation,
+            {
+              $match: req.searchQuery,
+            },
+            sortOptions,
+            {
+                $skip: (req.query.page ? req.query.page : 0)*10,
+                
+            },
+            {
+                $limit: PAGE_SIZE,
+            },
+
+            
+          ];
+        await Listing.aggregate(aggregatePipeline).then((results) => {
             listings = results;
         });
         
     } else {
-        await Listing.find(req.searchQuery).then((results) => {
+        const sortOptions = {};
+        if (req.query.sortBy) {
+            sortOptions[req.query.sortBy] = parseFloat(req.query.sortOrder);
+        }
+        await Listing.find(req.searchQuery, null, {
+            sort: sortOptions,
+            skip: (req.query.page ? req.query.page : 0)*PAGE_SIZE,
+            limit: PAGE_SIZE,
+        }).then((results) => {
             listings = results;
         });
     }
+
+    console.log(listings.length);
 
     return listings;
 

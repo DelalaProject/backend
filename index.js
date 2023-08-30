@@ -6,6 +6,9 @@ const jsonBodyParser = require('body-parser').json();
 
 const authRoute = require("./api/routes/authRoute.js");
 const listingsRoute = require("./api/routes/listingsRoute.js");
+const locationRoute = require("./api/routes/locationRoute.js");
+const phoneNumberRoute = require("./api/routes/phoneNumberRoute.js");
+const userRoute = require("./api/routes/userRoute.js");
 
 
 
@@ -21,6 +24,9 @@ connectDB();
 //routes
 app.use('/auth', authRoute);
 app.use('/listings', listingsRoute);
+app.use('/location', locationRoute);
+app.use('/phoneNumber', phoneNumberRoute);
+app.use('/user', userRoute);
 
 //main route
 app.use("/", (req, res) =>{
