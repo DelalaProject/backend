@@ -16,3 +16,7 @@ const conversationMemberShipSchema = new mangoose.Schema({
         default: false,
     },
 });
+
+const ConversationMembership = mangoose.model("ConversationMembership", conversationMemberShipSchema);
+
+module.exports = ConversationMembership;

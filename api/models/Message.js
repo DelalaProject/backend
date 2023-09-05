@@ -22,3 +22,7 @@ const messageSchema = new mangoose.Schema({
     }
 
 });
+
+const Message = mangoose.model("Message", messageSchema);
+
+module.exports = Message;

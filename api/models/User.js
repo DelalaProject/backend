@@ -32,6 +32,10 @@ const userSchema = new mangoose.Schema({
         max: 5,
     
     },
+    sockets: {
+        type: [mangoose.SchemaTypes.String],
+        default: [],
+    }
 });
 
 
