@@ -23,6 +23,22 @@ const checkUserExistance = async (req, res, next) => {
 }
 
 
+const checkUserEmailExistance = async (req, res, next) => {
+    try {
+        await User.findOne({email: req.body.email}).then((user) => {
+            if (user) return res.status(400).json({ msg: "user with this email already exists" });
+            else next();
+        }).catch((err) => {
+            console.log(err);
+            return res.status(400).json({ msg: "an error has occured" });
+        });
+    } catch (err) {
+        console.log(err);
+        return res.status(400).json({ msg: "an error has occured" });
+    }
+}
+
+
 const checkPasswordMatch = async (req, res, next) => {
     
         try {
@@ -47,4 +63,4 @@ const checkPasswordMatch = async (req, res, next) => {
         }
 }
 
-module.exports = {checkUserExistance, checkPasswordMatch}
+module.exports = {checkUserExistance, checkPasswordMatch, checkUserEmailExistance}

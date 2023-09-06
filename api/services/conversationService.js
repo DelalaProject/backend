@@ -1,8 +1,10 @@
 const Conversation = require('../models/Conversation');
 const ConversationMembership = require('../models/ConversationMembership');
+const mongoose = require('mongoose');
 const Message = require('../models/Message');
 const User = require('../models/User');
-const io = require('../../index.js').io;
+const Listing  = require('../models/Listing');
+const {getIo} = require('../services/socketIoService');
 
 
 
@@ -11,7 +13,17 @@ const createConversation = async (req, res) => {
         listing: req.body.listingId,
     });
 
+    
     await conversation.save();
+
+    let listing;
+
+    await Listing.findById(req.body.listingId).then(
+        (result) => {
+            listing = result;
+        }        
+    )
+
 
     let conversationMembership = new ConversationMembership({
         conversation: conversation._id,
@@ -23,8 +35,8 @@ const createConversation = async (req, res) => {
 
     conversationMembership = new ConversationMembership({
         conversation: conversation._id,
-        user: req.body.listingUserId,
-        anonymous: req.body.isListingAnonymous,
+        user: listing.user,
+        anonymous: listing.anonymous,
     });
 
     
@@ -42,10 +54,15 @@ const sendMessage = async (req, res) => {
 
     await message.save();
 
-    ConversationMembership.find({conversation: req.body.conversationId}).then(
+    ConversationMembership.findOne({
+        conversation: req.body.conversationId,
+        user: {$ne: req.userId}
+    }).then(
         async (result) => {
-            result.filter((membership) => membership.user != req.userId);
-            io.to(result[0].user.toString).emit("newMessage", message);
+            io = getIo();
+            // console.log("the receiver is: "+result);
+            console.log("the room is: "+result.user.toString());
+            io.to(result.user.toString()).emit("newMessage", message);
         }
     )
 
@@ -53,3 +70,6 @@ const sendMessage = async (req, res) => {
 
     return message;
 }
+
+
+module.exports = {createConversation, sendMessage}
