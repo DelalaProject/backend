@@ -1,29 +1,30 @@
-const mangoose = require('mangoose');
+const mongoose = require('mongoose');
 
 
-const reviewSchema = new mangoose.Schema({
+const reviewSchema = new mongoose.Schema({
     reviewer: {
-        type: mangoose.SchemaTypes.ObjectId,
+        type: mongoose.SchemaTypes.ObjectId,
         ref: "User",
         required: [true, "You can't create a review without a reviewer"],
     },
     reviewed: {
-        type: mangoose.SchemaTypes.ObjectId,
+        type: mongoose.SchemaTypes.ObjectId,
         ref: "User",
         required: [true, "You can't create a review without a reviewed"],
     },
     rating: {
-        type: mangoose.SchemaTypes.Number,
+        type: mongoose.SchemaTypes.Number,
         required: [true, "You can't create a review without a rating"],
-        min: 1,
+        min: 0,
         max: 5,
     },
-    comment: {
-        type: mangoose.SchemaTypes.String,
-    },
     date: {
-        type: mangoose.SchemaTypes.Date,
+        type: mongoose.SchemaTypes.Date,
         default: Date.now(),
     }
 
 });
+
+const Review = mongoose.model("Review", reviewSchema);
+
+module.exports = Review;

@@ -12,15 +12,6 @@ const createConversationHandler = async (req, res) => {
     }
 }
 
-const sendMessageHandler = async (req, res) => {
-    try {
-        const message = await sendMessage(req, res);
-        res.status(200).send({message, message: "Message sent successfully"});
-    } catch (error) {
-        console.log(error);
-        res.status(500).send({message: error.message});
-    }
-}
 
 
-module.exports = {createConversationHandler, sendMessageHandler}
+module.exports = {createConversationHandler}

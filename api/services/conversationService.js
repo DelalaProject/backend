@@ -1,10 +1,9 @@
 const Conversation = require('../models/Conversation');
-const ConversationMembership = require('../models/ConversationMembership');
+const ConversationMembership = require('../models/conversationMembership');
 const mongoose = require('mongoose');
 const Message = require('../models/Message');
 const User = require('../models/User');
 const Listing  = require('../models/Listing');
-const {getIo} = require('../services/socketIoService');
 
 
 
@@ -45,31 +44,53 @@ const createConversation = async (req, res) => {
     return conversation;
 }
 
-const sendMessage = async (req, res) => {
+const sendMessage = async (content, conversationId, userId, io) => {
     const message = new Message({
-        conversation: req.body.conversationId,
-        sender: req.userId,
-        content: req.body.content,
+        conversation: conversationId,
+        sender: userId,
+        content: content,
     });
 
     await message.save();
 
     ConversationMembership.findOne({
-        conversation: req.body.conversationId,
-        user: {$ne: req.userId}
+        conversation: conversationId,
+        user: {$ne: userId}
     }).then(
         async (result) => {
-            io = getIo();
-            // console.log("the receiver is: "+result);
-            console.log("the room is: "+result.user.toString());
+            console.log("receiver: "+result.user);
             io.to(result.user.toString()).emit("newMessage", message);
         }
     )
 
-
-
-    return message;
 }
 
+
+const getConversationsMemberships = async (req, res) => {
+    let conversationsMemberships;
+
+    await ConversationMembership.find({
+        user: req.userId,
+    })
+    .populate('conversation')
+    .then((results) => {
+        conversationsMemberships = results;
+    })
+
+
+    return conversationsMemberships;
+}
+
+const getMessages = async (req, res) => {
+    let messages;
+
+    await Message.find({
+        conversation: req.body.conversationId,
+    })
+    .populate('sender')
+    .then((results) => {
+        messages = results;
+    })
+}
 
 module.exports = {createConversation, sendMessage}
