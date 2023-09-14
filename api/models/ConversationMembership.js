@@ -15,6 +15,10 @@ const conversationMemberShipSchema = new mangoose.Schema({
         type: mangoose.SchemaTypes.Boolean,
         default: false,
     },
+    latestMessageDate: {
+        type: mangoose.SchemaTypes.Date,
+        default: Date.now(),
+    }
 });
 
 const ConversationMembership = mangoose.model("ConversationMembership", conversationMemberShipSchema);

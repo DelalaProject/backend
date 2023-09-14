@@ -144,6 +144,10 @@ const searchQueryBuilder = (req, res, next) => {
         query.priceType = req.query.priceType;
     }
 
+    if (req.body.date) {
+        query.date = {$lte: new Date(req.body.date)};
+    }
+
     
     req.searchQuery = query;
     

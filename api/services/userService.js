@@ -1,10 +1,10 @@
 const User = require ("../models/User");
+const UserReport = require("../models/UserReport");
 const PhoneNumber = require("../models/PhoneNumber");
 const Location = require("../models/Location");
 const Listing = require("../models/Listing");
 const bcrypt = require('bcrypt');
 const config = require('../../config/auth_config.js');
-const {emailValidator, passwordValidator} = require("../tools/inputValidators.js");
 
 const searchUser = async (req, res) => {
     console.log(req.query.search);
@@ -75,7 +75,55 @@ const deleteUser = async (req, res) => {
 
 }
 
-module.exports = { searchUser, getUser, updateUserInfo, updateUserPassword, deleteUser };
+
+const reportUser = async (userId, subject, reporterId) => {
+    const report = new UserReport({
+        reported: userId,
+        reporter: reporterId,
+        subject: subject,
+    });
+    await report.save();
+    return report;
+}
+
+const getUserReports = async () => {
+    let reportedUsers;
+    await UserReport.find().populate("reported").then((reports) => {
+        reportedUsers = reports;
+    });
+    return reportedUsers;
+}
+
+const deleteUserReport = async (reportId) => {
+    await UserReport.findByIdAndDelete(reportId);
+
+}
+
+const getUserUserReport = async (userId, reportedId) => {
+    let userReports;
+    await UserReport.find({
+        reported: reportedId,
+        reporter: userId,
+    }).populate("reported").then((reports) => {
+        userReports = reports;
+    });
+    return userReports;
+}
+
+
+
+const getUserUserReports = async (userId) => {
+    let userReports;
+    await UserReport.find({
+        reporter: userId,
+    }).populate("reported").then((reports) => {
+        userReports = reports;
+    });
+    return userReports;
+}
+
+
+module.exports = { searchUser, getUser, updateUserInfo, updateUserPassword, deleteUser, reportUser, getUserReports, deleteUserReport, getUserUserReport, getUserUserReports };
 
 
 

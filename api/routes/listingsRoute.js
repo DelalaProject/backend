@@ -3,7 +3,8 @@ const router = require('express').Router();
 const {verifyToken} = require('../middlewares/authMiddlewares.js');
 const {checkUserExistance} = require('../middlewares/userMiddlewares.js');
 const {checkListingExistance, valideListingValues, searchQueryBuilder} = require('../middlewares/listingsMiddlewares.js');
-const {createListingHandler, getUserPublicListingsHandler, getUserListingsHandler, deleteListingHandler, updateListingHandler, seacrhListingsHandler} = require('../controllers/listingsController.js');
+const {createListingHandler, getUserPublicListingsHandler, getUserListingsHandler, deleteListingHandler, updateListingHandler, seacrhListingsHandler, reportListingHandler, getLisitingReportsHandler, deleteListingReportHandler, getUserListingReportsHandler, getUserListingReportHandler} = require('../controllers/listingsController.js');
+const {checkListingReportOwnershipMiddleware} = require('../middlewares/reportMiddlewares.js');
 
 
 router.post(
@@ -44,6 +45,50 @@ router.get(
     searchQueryBuilder,
     seacrhListingsHandler
 );
+
+router.post(
+    '/report',
+    [
+        verifyToken,
+        checkListingExistance,
+    ],
+    reportListingHandler
+    
+)
+
+router.get(
+    '/getLisitingReports',
+    getLisitingReportsHandler
+)
+
+router.delete(
+    '/deleteReport',
+    [
+        verifyToken,
+        checkListingReportOwnershipMiddleware,
+    ],
+    deleteListingReportHandler
+)
+
+router.get(
+    '/getUserListingReports',
+    [
+        verifyToken,
+    ],
+    getUserListingReportsHandler
+)
+
+router.get(
+    '/getUserListingReport',
+    [
+        verifyToken,
+    ],
+    getUserListingReportHandler
+)
+
+
+
+
 
 
 module.exports = router;

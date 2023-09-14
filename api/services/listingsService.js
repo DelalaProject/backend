@@ -1,5 +1,6 @@
 
 const Listing = require('../models/Listing');
+const ListingReport = require('../models/ListingReport');
 const Location = require('../models/Location');
 const {getDistanceFromLatLonInKm} = require('../tools/calculations.js');
 
@@ -22,6 +23,7 @@ const createListing = async (req, res) => {
             priceType: req.body.priceType,
             customSpecs: req.body.customSpecs,
             location: req.body.location,
+            date: Date.now(),
         });
 
         await Location.findById(req.body.location).then((location) => {
@@ -185,32 +187,55 @@ const seacrhListings = async (req, res) => {
     return listings;
 
 
-    await Listing.find(req.searchQuery).then((results) => {
-        
-        listings = results;
-    });
 
-    let distance, searchLatitude, searchLongitude;
-    for (let i = 0; i < listings.length; i++) {
-        await Location.findById(listings[i].location).then((location) => {
-            distance = getDistanceFromLatLonInKm(req.query.lat, req.query.lng, location.coordinates[0], location.coordinates[1]);
-            if (distance > req.query.distance) {
-                listings.slice(i, 1);
-            } else {
-                if (listings.anonymous) delete location.user;
-                location.distance = distance;
-                console.log(location);
-                listings[i].location = location;
-            }
-
-        });
-    }
-
-
-    
-
-    return listings;
     
 }
 
-module.exports = {createListing, getUserPublicListings, getUserListings, deleteListing, updateListing, seacrhListings}
+const reportListing = async (listingId, subject, reporterId) => {
+    const report = new ListingReport({
+        reported: listingId,
+        reporter: reporterId,
+        subject: subject,
+    });
+    await report.save();
+    return report;
+}
+
+const getLisitingReports = async () => {
+    let reportedListings;
+    await ListingReport.find().populate("reported").then((results) => {
+        reportedListings = results;
+    });
+    return reportedListings;
+}
+
+const deleteListingReport = async (reportId) => {
+    await ListingReport.findByIdAndDelete(reportId);
+}
+
+
+const getUserListingReports = async (userId) => {
+    let userReports;
+    await ListingReport.find({
+        reporter: userId,
+    }).populate("reported").then((reports) => {
+        userReports = reports;
+    });
+    return userReports;
+}
+
+const getUserListingReport = async (userId, reportedId) => {
+    let userReports;
+    await ListingReport.find({
+        reported: reportedId,
+        reporter: userId,
+    }).populate("reported").then((reports) => {
+        userReports = reports;
+    });
+    return userReports;
+}
+
+
+
+
+module.exports = {createListing, getUserPublicListings, getUserListings, deleteListing, updateListing, seacrhListings, reportListing, getLisitingReports, deleteListingReport, getUserListingReports, getUserListingReport}

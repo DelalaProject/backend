@@ -1,19 +1,28 @@
-const mangoose = require('mongoose');
+const mongoose = require('mongoose');
 
-const recievedNotificationSchema = new mangoose.Schema({
+const recievedNotificationSchema = new mongoose.Schema({
     notification: {
-        type: mangoose.SchemaTypes.ObjectId,
+        type: mongoose.SchemaTypes.ObjectId,
         ref: "Notification",
         required: [true, "You can't create a recieved notification without a notification"],
     },
     user: {
-        type: mangoose.SchemaTypes.ObjectId,
+        type: mongoose.SchemaTypes.ObjectId,
         ref: "User",
         required: [true, "You can't create a recieved notification without a user"],
     },
     seen: {
-        type: mangoose.SchemaTypes.Boolean,
+        type: mongoose.SchemaTypes.Boolean,
         default: false,
     },
+    date: {
+        type: mongoose.SchemaTypes.Date,
+        default: Date.now,
+    }
+    
 
 });
+
+const RecievedNotification = mongoose.model("RecievedNotification", recievedNotificationSchema);
+
+module.exports = RecievedNotification;

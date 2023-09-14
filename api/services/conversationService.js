@@ -49,6 +49,7 @@ const sendMessage = async (content, conversationId, userId, io) => {
         conversation: conversationId,
         sender: userId,
         content: content,
+        date: Date.now(),
     });
 
     await message.save();
@@ -63,14 +64,30 @@ const sendMessage = async (content, conversationId, userId, io) => {
         }
     )
 
+    
+    ConversationMembership.updateMany(
+        {
+            conversation: conversationId,
+        },
+        {
+            latestMessageDate: Date.now(),
+        },
+    );
+
+
 }
 
 
-const getConversationsMemberships = async (req, res) => {
+const getConversationsMemberships = async (userId, page) => {
+    const PAGE_SIZE = 10;
     let conversationsMemberships;
 
     await ConversationMembership.find({
-        user: req.userId,
+        user: userId,
+    }, null, {
+        sort: {latestMessageDate: -1},
+        skip: page * PAGE_SIZE,
+        limit: PAGE_SIZE,
     })
     .populate('conversation')
     .then((results) => {
@@ -81,16 +98,33 @@ const getConversationsMemberships = async (req, res) => {
     return conversationsMemberships;
 }
 
-const getMessages = async (req, res) => {
+const getMessages = async (conversationId, page, date) => {
+    const PAGE_SIZE = 10;
     let messages;
 
-    await Message.find({
-        conversation: req.body.conversationId,
+    const filter = {
+        conversation: conversationId,
+    } 
+
+    if (date) {
+        const dateObj = new Date(date);
+        filter.date = {$lte: dateObj};
+    }
+
+    await Message.find(
+        filter, 
+        null, {
+        sort: {date: -1},
+        skip: page * PAGE_SIZE,
+        limit: PAGE_SIZE,
     })
     .populate('sender')
     .then((results) => {
         messages = results;
+        console.log("count: " + results.length);
     })
+
+    return messages;
 }
 
-module.exports = {createConversation, sendMessage}
+module.exports = {createConversation, sendMessage, getConversationsMemberships, getMessages}
